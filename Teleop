@@ -1,0 +1,52 @@
+package com.qualcomm.ftcrobotcontroller.opmodes;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+
+public class AutoRed extends LinearOpMode {
+
+    DcMotor LMotor;
+    DcMotor RMotor;
+    Servo Ricey;
+
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        LMotor = hardwareMap.dcMotor.get("left_drive");
+        RMotor = hardwareMap.dcMotor.get("right_drive");
+        Ricey = hardwareMap.servo.get("Climbers");
+
+        LMotor.setDirection(DcMotor.Direction.REVERSE);
+
+
+        waitForStart();
+
+        sleep(7500);
+
+
+        LMotor.setPower(-0.7);
+        RMotor.setPower(-0.7); //To add turns you can negative with - on the opposite Motor.
+
+        sleep(8000);
+
+        LMotor.setPower(-0.5);
+        RMotor.setPower(0.5);
+
+        sleep(1000);
+
+
+        LMotor.setPower(0.0);
+        RMotor.setPower(0.0);
+
+        sleep(1000);
+
+        //Ricey.setPosition(0.375);
+        //sleep(1500);
+
+        //LMotor.setPower(0.0);
+        //RMotor.setPower(0.0);
+        //sleep(1000);
+
+    }
+}
