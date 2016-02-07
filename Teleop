@@ -1,0 +1,97 @@
+package com.qualcomm.ftcrobotcontroller.opmodes;
+
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+//import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
+
+public class Controller extends OpMode {
+    DcMotor Lmotor;
+    DcMotor Rmotor;
+    DcMotor Rlift;
+    DcMotor Llift;
+    DcMotor Measure;
+    Servo Lclimber;
+    Servo Rclimber;
+    Servo Ricey;
+
+    
+    @Override
+    public void init() {
+        Lmotor = hardwareMap.dcMotor.get("left_drive");
+        Rmotor = hardwareMap.dcMotor.get("right_drive");
+        Rlift = hardwareMap.dcMotor.get("Rmb");
+        Llift = hardwareMap.dcMotor.get("Lmb");
+        //Measure = hardwareMap.dcMotor.get("Tape");
+
+
+        Lmotor.setDirection(DcMotor.Direction.REVERSE);
+        Llift.setDirection(DcMotor.Direction.REVERSE);
+
+        Lclimber = hardwareMap.servo.get("Lclimber");
+        Rclimber = hardwareMap.servo.get("Rclimber");
+        Ricey = hardwareMap.servo.get("Climbers");
+
+
+
+
+    }
+
+
+    @Override
+    public void loop() {
+        float leftY = -gamepad1.left_stick_y;
+        float rightY = -gamepad1.right_stick_y;
+        float Lifty = -gamepad2.right_stick_y;
+        float ClimberR = gamepad2.right_trigger;
+        float ClimberL = gamepad2.left_trigger;
+        float Climbey = gamepad1.right_trigger;
+        //float Tape = gamepad2.left_stick_y;
+
+
+        Lmotor.setPower(leftY);
+        Rmotor.setPower(rightY);
+        Rlift.setPower(Lifty*0.25);
+        Llift.setPower(Lifty*0.25);
+        //Measure.setPower(Tape);
+
+
+        float climberLOut = 0.0f;
+
+
+        // If you are holding the left trigger, the servo arm extends out,
+        // else bring the servo arm in
+        if (Math.abs(ClimberL) < 0.2) {
+            climberLOut = 0.1f;//bring the servo in
+        } else {
+            climberLOut = 1.0f; //extend the servo out
+        }
+
+        float climberROut = 0.0f;
+
+        if (Math.abs(ClimberR) < 0.2) {
+            climberROut = 0.6f;// extend out
+        } else {
+            climberROut = 0.0f;//bring servo in
+        }
+
+
+        float ClimbeyUp = 0.2f;
+
+        if (Math.abs(Climbey) < 0.2) {
+            ClimbeyUp = 0.2f;
+        } else {
+            ClimbeyUp = 0.6f;
+        }
+
+
+
+        Lclimber.setPosition(climberLOut);
+        Rclimber.setPosition(climberROut);
+        Ricey.setPosition(ClimbeyUp);
+
+
+    }
+    }
