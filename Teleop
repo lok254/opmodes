@@ -6,37 +6,31 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 //import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-
 public class Controller extends OpMode {
     DcMotor Lmotor;
     DcMotor Rmotor;
-    DcMotor Rlift;
     DcMotor Llift;
     DcMotor Measure;
-    Servo Lclimber;
-    Servo Rclimber;
+    Servo zipL;
+    Servo zipR;
     Servo Ricey;
+    Servo Aiming;
 
-    
+
     @Override
     public void init() {
         Lmotor = hardwareMap.dcMotor.get("left_drive");
         Rmotor = hardwareMap.dcMotor.get("right_drive");
-        Rlift = hardwareMap.dcMotor.get("Rmb");
         Llift = hardwareMap.dcMotor.get("Lmb");
-        //Measure = hardwareMap.dcMotor.get("Tape");
-
+        Measure = hardwareMap.dcMotor.get("Tape");
+        Aiming = hardwareMap.servo.get("Aim");
 
         Lmotor.setDirection(DcMotor.Direction.REVERSE);
         Llift.setDirection(DcMotor.Direction.REVERSE);
 
-        Lclimber = hardwareMap.servo.get("Lclimber");
-        Rclimber = hardwareMap.servo.get("Rclimber");
+        zipL = hardwareMap.servo.get("Hikers");
+        zipR = hardwareMap.servo.get("Hikers");
         Ricey = hardwareMap.servo.get("Climbers");
-
-
-
-
     }
 
 
@@ -45,53 +39,70 @@ public class Controller extends OpMode {
         float leftY = -gamepad1.left_stick_y;
         float rightY = -gamepad1.right_stick_y;
         float Lifty = -gamepad2.right_stick_y;
-        float ClimberR = gamepad2.right_trigger;
-        float ClimberL = gamepad2.left_trigger;
-        float Climbey = gamepad1.right_trigger;
-        //float Tape = gamepad2.left_stick_y;
+        float ClimberR = gamepad1.right_trigger;
+        float ClimberL = gamepad1.left_trigger;
+        float Climbey = gamepad2.right_trigger;
+        float Tape = gamepad2.left_stick_y;
+        boolean AimU = gamepad2.dpad_up;
+        boolean AimD = gamepad2.dpad_down;
 
 
         Lmotor.setPower(leftY);
         Rmotor.setPower(rightY);
-        Rlift.setPower(Lifty*0.25);
+        //Rlift.setPower(Lifty*0.25);
         Llift.setPower(Lifty*0.25);
-        //Measure.setPower(Tape);
+        Measure.setPower(Tape);
 
+        // If you are holding the left trigger, the servo arm extends out left
+        // else keep the servo arm centered
+        float zipLeft = 0.0f;
 
-        float climberLOut = 0.0f;
-
-
-        // If you are holding the left trigger, the servo arm extends out,
-        // else bring the servo arm in
         if (Math.abs(ClimberL) < 0.2) {
-            climberLOut = 0.1f;//bring the servo in
+            zipLeft = 0.1f; // move servo left
         } else {
-            climberLOut = 1.0f; //extend the servo out
+            zipLeft = 0.0f; // keep servo centered
         }
 
-        float climberROut = 0.0f;
+
+        // If you are holding the right trigger, the servo arm extends out right
+        // else keep the servo arm centered
+        float zipRight = 0.0f;
 
         if (Math.abs(ClimberR) < 0.2) {
-            climberROut = 0.6f;// extend out
+            zipRight = 0.6f; // move servo right
         } else {
-            climberROut = 0.0f;//bring servo in
+            zipRight = 0.0f; // keep servo centered
         }
 
 
         float ClimbeyUp = 0.2f;
 
         if (Math.abs(Climbey) < 0.2) {
-            ClimbeyUp = 0.2f;
+            ClimbeyUp = 0.2f; // if the left trigger is pressed on gamepad 1 then drop climbers
         } else {
-            ClimbeyUp = 0.6f;
+            ClimbeyUp = 0.6f; // else the dump stays in its starting position
+
         }
 
+        // Tape Measure Aim Servo
+        if (AimU == true){
+            Aiming = 0.5f; // aims the tape measure upward
+        } else {
+            Aiming = 0.0f; // aim stays at starting position
+        }
 
+        if (AimD == true){
+            Aiming = 0.1f; // aims the tape measure downward
+        } else {
+            Aiming = 0.0f; // aim stays at starting position
+        }
+        
 
-        Lclimber.setPosition(climberLOut);
-        Rclimber.setPosition(climberROut);
+        zipL.setPosition(zipLeft);
+        zipR.setPosition(zipRight);
         Ricey.setPosition(ClimbeyUp);
-
-
+        Aiming.setDirection(AimU);
+        Aiming.setPosition(AimD);
+                
     }
-    }
+}
