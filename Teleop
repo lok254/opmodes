@@ -3,18 +3,21 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-//import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Controller extends OpMode {
     DcMotor Lmotor;
     DcMotor Rmotor;
     DcMotor Llift;
-    DcMotor Measure;
+    DcMotor Tape;
+    DcMotor Tape2;
+
     Servo zipL;
     Servo zipR;
     Servo Ricey;
     Servo Aiming;
+    Servo Flag;
 
 
     @Override
@@ -22,15 +25,19 @@ public class Controller extends OpMode {
         Lmotor = hardwareMap.dcMotor.get("left_drive");
         Rmotor = hardwareMap.dcMotor.get("right_drive");
         Llift = hardwareMap.dcMotor.get("Lmb");
-        Measure = hardwareMap.dcMotor.get("Tape");
-        Aiming = hardwareMap.servo.get("Aim");
+        Tape = hardwareMap.dcMotor.get("Tape");
+        Tape2 = hardwareMap.dcMotor.get("Tape2");
+        //Aiming = hardwareMap.servo.get("Aim");
 
         Lmotor.setDirection(DcMotor.Direction.REVERSE);
         Llift.setDirection(DcMotor.Direction.REVERSE);
+        //zipL.setDirection(Servo.Direction.REVERSE);
+        //Measure2.setDirection(DcMotor.Direction.REVERSE);
 
         zipL = hardwareMap.servo.get("Hikers");
         zipR = hardwareMap.servo.get("Hikers");
         Ricey = hardwareMap.servo.get("Climbers");
+        Flag = hardwareMap.servo.get("FlagDrop");
     }
 
 
@@ -39,10 +46,9 @@ public class Controller extends OpMode {
         float leftY = -gamepad1.left_stick_y;
         float rightY = -gamepad1.right_stick_y;
         float Lifty = -gamepad2.right_stick_y;
-        float ClimberR = gamepad1.right_trigger;
-        float ClimberL = gamepad1.left_trigger;
-        float Climbey = gamepad2.right_trigger;
-        float Tape = gamepad2.left_stick_y;
+       // float ClimberR = gamepad2.right_trigger;
+       // float ClimberL = gamepad2.left_trigger;
+        float Climbey = gamepad1.right_trigger;
         boolean AimU = gamepad2.dpad_up;
         boolean AimD = gamepad2.dpad_down;
 
@@ -50,29 +56,29 @@ public class Controller extends OpMode {
         Lmotor.setPower(leftY);
         Rmotor.setPower(rightY);
         //Rlift.setPower(Lifty*0.25);
-        Llift.setPower(Lifty*0.25);
-        Measure.setPower(Tape);
+        Llift.setPower(Lifty*0.5);
+
+
+
+
 
         // If you are holding the left trigger, the servo arm extends out left
         // else keep the servo arm centered
         float zipLeft = 0.0f;
 
-        if (Math.abs(ClimberL) < 0.2) {
-            zipLeft = 0.1f; // move servo left
-        } else {
-            zipLeft = 0.0f; // keep servo centered
+       //This one work Iceman
+        if (gamepad2.left_bumper && gamepad2.right_bumper) {
+            zipL.setPosition(0.5); }
+        else if (gamepad2.left_bumper) {
+            zipL.setPosition(0); }
+        else if (gamepad2.right_bumper) {
+            zipR.setPosition(0.9);
+        }
+        else {
+            zipL.setPosition(0.5);
+            zipR.setPosition(0.5);
         }
 
-
-        // If you are holding the right trigger, the servo arm extends out right
-        // else keep the servo arm centered
-        float zipRight = 0.0f;
-
-        if (Math.abs(ClimberR) < 0.2) {
-            zipRight = 0.6f; // move servo right
-        } else {
-            zipRight = 0.0f; // keep servo centered
-        }
 
 
         float ClimbeyUp = 0.2f;
@@ -84,25 +90,47 @@ public class Controller extends OpMode {
 
         }
 
-        // Tape Measure Aim Servo
-        if (AimU == true){
-            Aiming = 0.5f; // aims the tape measure upward
-        } else {
-            Aiming = 0.0f; // aim stays at starting position
+        if (gamepad1.dpad_up && gamepad1.dpad_down) {
+            Tape2.setPower(0); }
+        else if (gamepad1.dpad_up) {
+            Tape2.setPower(0.25); }
+        else if (gamepad1.dpad_down) {
+            Tape2.setPower(-1.0); }
+        else {
+            Tape2.setPower(0); }
+
+        telemetry.addData("Lift", Tape2.getCurrentPosition());
+        telemetry.addData("Target", Tape2.getTargetPosition());
+
+
+        // Set power to Tape motor
+        if (gamepad1.dpad_up && gamepad2.dpad_down) {
+            Tape.setPower(0); }
+        else if (gamepad1.dpad_up) {   // When dpad up is pressed extend tape measure
+            Tape.setPower(0.25); }
+        else if (gamepad1.dpad_down) { // When dpad down is pressed retract tape measure
+            Tape.setPower(-1.0); }
+        else {
+            Tape.setPower(0); }
+
+
+        // Drops Copper wire to raise flag
+        if (gamepad2.a) {                               // If game pad 2s a button is pressed drop wire
+            Flag.setPosition(0.8); }
+        else {                                          // Else keep servo in base position
+            Flag.setPosition(0);
         }
 
-        if (AimD == true){
-            Aiming = 0.1f; // aims the tape measure downward
-        } else {
-            Aiming = 0.0f; // aim stays at starting position
-        }
-        
 
-        zipL.setPosition(zipLeft);
-        zipR.setPosition(zipRight);
+
+
+
+        telemetry.addData("Lift", Tape.getCurrentPosition());
+        telemetry.addData("Target", Tape.getTargetPosition());
+
+
         Ricey.setPosition(ClimbeyUp);
-        Aiming.setDirection(AimU);
-        Aiming.setPosition(AimD);
-                
+
+
     }
 }
